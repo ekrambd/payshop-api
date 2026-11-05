@@ -1,0 +1,179 @@
+@media screen and (max-width: 767px) {
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+          margin-bottom: 20px!important;
+    }
+    .page-link{
+            padding: 10px!important;
+         }
+
+    .dataTables_info{
+       display: none!important;
+    }
+
+    .dataTables_paginate{
+    float: right!important;
+}
+}
+
+@media screen and (min-width: 768px) {
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      margin-bottom: 20px!important;
+    }
+
+   
+
+        page-link{
+            padding: 10px!important;
+         }
+
+
+}
+
+
+
+.nav-link{
+      color: #FFFFFF!important;
+}
+
+.data-table{
+	width: 100%!important;
+}
+
+
+
+
+
+.select2
+{
+	width: 100%!important;
+}
+
+.alert-danger
+{
+	background: transparent!important;
+	border: none!important;
+	color: red!important;
+}
+
+
+.category-table{
+	margin-top: 10px!important;
+}
+
+.loader-image
+{   
+    display: block;
+    margin-left: auto;
+     margin-right: auto;
+	width: 100px;
+	height: auto;
+	margin-top: 10px!important;
+}
+
+td{
+	text-align: center;
+}
+
+th{
+	text-align: center;
+}
+
+.add-new
+{
+	float: right!important;
+}
+
+.no-data{
+	text-align: center;
+}
+
+
+
+.action-btn{
+	margin-top: 5px;
+}
+
+
+
+.required{
+	color: red;
+}
+
+.action-button{
+	margin-top: 5px!important;
+}
+
+.dataTables_paginate{
+    float: right!important;
+}
+
+
+.product-image{
+   width: 60px;
+   height: 60px;
+}
+
+.button-product-filters{
+  gap: 10px!important;
+}
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

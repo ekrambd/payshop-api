@@ -1,0 +1,1077 @@
+{
+  "info": {
+    "_postman_id": "98ee3aa3-a123-4989-862a-7d72ff6126ed",
+    "name": "Payshop Mobile App APIs",
+    "description": "Complete Postman Collection for Payshop Multivendor E-Commerce Mobile App.\nAll new requested endpoints are implemented in POST method with standard { status: true/false } responses.\nSupports both Sanctum Bearer token and user_id in request body.\nIncludes Unified User Authentication (Single API for both Sign In and Sign Up).\nIncludes Currency Lists API (POST /api/currency-lists) and automatic price conversion across all product and checkout APIs.\nIncludes Multi Quantity Price (MOQ) Tiers in Product Details API matching payshop_ecm_modify.\nIncludes Exactly Two APIs for Checkout (Cart Details -> Save Order) linked by cart_id.\nUnit total is provided from the body in Cart Details API.\nDelivery charge is computed automatically from place_type ('inside_city' or 'outside_city') in user selected currency.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "currency",
+      "value": "bdt_rate",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "cart_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "invoice_no",
+      "value": "INV-001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. User Authentication (POST)",
+      "item": [
+        {
+          "name": "Unified User Auth (Sign In or Sign Up)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}",
+                  "if (jsonData.user && jsonData.user.id) {",
+                  "    pm.collectionVariables.set('user_id', jsonData.user.id.toString());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"user@example.com\",\n  \"phone\": \"01700123456\",\n  \"password\": \"password123\",\n  \"device_token\": \"optional_fcm_token\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-auth",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-auth"
+              ]
+            },
+            "description": "Single unified API for both Sign In and Sign Up:\n- Body: name, email, phone (optional), password, device_token\n- Checks if email or phone exists in DB.\n- If NOT exists: automatically creates user record (role_id=3, status=Active) and logs in.\n- If ALREADY exists: verifies password and logs in.\n- Automatically captures returned token and user_id into collection variables."
+          }
+        },
+        {
+          "name": "Unified User Auth (via /user-signin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}",
+                  "if (jsonData.user && jsonData.user.id) {",
+                  "    pm.collectionVariables.set('user_id', jsonData.user.id.toString());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"user@example.com\",\n  \"phone\": \"01700123456\",\n  \"password\": \"password123\",\n  \"device_token\": \"optional_fcm_token\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-signin"
+              ]
+            },
+            "description": "Alias route for mobile app pointing to the same unified auto signin/signup logic."
+          }
+        },
+        {
+          "name": "Unified User Auth (via /user-signup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}",
+                  "if (jsonData.user && jsonData.user.id) {",
+                  "    pm.collectionVariables.set('user_id', jsonData.user.id.toString());",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"user@example.com\",\n  \"phone\": \"01700123456\",\n  \"password\": \"password123\",\n  \"device_token\": \"optional_fcm_token\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-signup"
+              ]
+            },
+            "description": "Alias route for mobile app pointing to the same unified auto signin/signup logic."
+          }
+        },
+        {
+          "name": "User Signout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-signout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-signout"
+              ]
+            },
+            "description": "Revokes user authentication tokens."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Currency Settings (POST)",
+      "item": [
+        {
+          "name": "Currency Lists",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/currency-lists",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "currency-lists"
+              ]
+            },
+            "description": "Returns all available system currencies (USD, BDT, SAR, AED, JPY) with symbols, exchange rates, currency_keys, and is_parent flag.\nPass 'currency' (e.g. 'bdt_rate' or 'BDT') in any API request to see all product prices and checkout amounts automatically converted!"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. User Panel (POST)",
+      "item": [
+        {
+          "name": "Dashboard Summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-dashboard"
+              ]
+            },
+            "description": "Returns counts of total, pending, processing, completed, cancelled orders, total spent amount, wishlist count, user profile, and recent 5 orders."
+          }
+        },
+        {
+          "name": "Profile Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john_updated@example.com\",\n  \"phone\": \"01700123456\",\n  \"address\": \"House 15, Road 7, Sector 3, Uttara\",\n  \"city\": \"Dhaka\",\n  \"zip_code\": \"1230\",\n  \"currency\": \"{{currency}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-profile-update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-profile-update"
+              ]
+            },
+            "description": "Updates customer profile details. Supports JSON or multipart/form-data for image file upload."
+          }
+        },
+        {
+          "name": "Password Change",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"current_password\": \"password123\",\n  \"new_password\": \"newpassword456\",\n  \"confirm_password\": \"newpassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-change-password"
+              ]
+            },
+            "description": "Validates current password and updates to new password."
+          }
+        },
+        {
+          "name": "User Orders (Filtered)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"from_date\": \"2026-01-01\",\n  \"to_date\": \"2026-12-31\",\n  \"status\": \"Pending\",\n  \"invoice_no\": \"\",\n  \"order_id\": \"\",\n  \"search\": \"\",\n  \"per_page\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user-orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user-orders"
+              ]
+            },
+            "description": "Paginated list of user's orders with optional filters by from_date, to_date, status, invoice_no, order_id, or search string."
+          }
+        },
+        {
+          "name": "Order Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"invoice_no\": \"{{invoice_no}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/order-details",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "order-details"
+              ]
+            },
+            "description": "Full details of an order including products, variants, delivery info, and courier tracking."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Whitelist / Wishlist (POST)",
+      "item": [
+        {
+          "name": "Add to Whitelist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"product_id\": 18\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/whitelist-add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "whitelist-add"
+              ]
+            },
+            "description": "Adds a product to user's whitelist. User must be logged in (returns 401 if unauthenticated)."
+          }
+        },
+        {
+          "name": "List Whitelist Items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"per_page\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/whitelist",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "whitelist"
+              ]
+            },
+            "description": "Paginated list of all items in user's whitelist with product details."
+          }
+        },
+        {
+          "name": "Remove from Whitelist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"product_id\": 18\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/whitelist-remove",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "whitelist-remove"
+              ]
+            },
+            "description": "Removes a product from user's whitelist."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Cart & Save Order (2 APIs Linked by ID) (POST)",
+      "item": [
+        {
+          "name": "1. Cart Stock & Items Check (Returns cart_id & delivery rates)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.status && jsonData.data && jsonData.data.cart_id) {",
+                  "    pm.collectionVariables.set('cart_id', jsonData.data.cart_id);",
+                  "    console.log('Saved cart_id: ' + jsonData.data.cart_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": 18,\n      \"qty\": 2,\n      \"variant_id\": null,\n      \"product_variant_id\": null,\n      \"unit_total\": 36.0\n    }\n  ],\n  \"currency\": \"{{currency}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart-details",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart-details"
+              ]
+            },
+            "description": "API 1 of 2 (Cart & Items Verification):\n- Mobile app sends local cart items and user selected currency (e.g. 'bdt_rate' or 'BDT').\n- Notice: unit_total is provided from the body for each item (e.g. qty * unit_price). The API calculates subtotal based on each item's unit_total.\n- Notice: place_type is REMOVED from this request!\n- Checks stock for each product & variant.\n- If ANY product stock < cart qty, halts and returns status: false with errors array showing which products cannot be fulfilled.\n- If ALL products are in stock, stores items in DB with unique cart_id.\n- Automatically calculates BOTH inside_city and outside_city delivery charges in the selected currency (product delivery charges + vendor settings + item weight).\n- Returns cart_id, sub_total, delivery_charges { inside_city, outside_city }, currency, currency_symbol, and available payment methods."
+          }
+        },
+        {
+          "name": "2. Save Order (Checkout - Follows payshop_ecm_modify)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.status && jsonData.data && jsonData.data.order_id) {",
+                  "    pm.collectionVariables.set('order_id', jsonData.data.order_id.toString());",
+                  "    pm.collectionVariables.set('invoice_no', jsonData.data.invoice_no);",
+                  "    console.log('Saved order_id: ' + jsonData.data.order_id + ', invoice: ' + jsonData.data.invoice_no);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"{{cart_id}}\",\n  \"user_id\": \"{{user_id}}\",\n  \"user_name\": \"Rahim Khan\",\n  \"user_phone\": \"01700123456\",\n  \"user_email\": \"rahim@example.com\",\n  \"user_country\": \"Bangladesh\",\n  \"user_city\": \"Dhaka\",\n  \"user_zipcode\": \"1213\",\n  \"user_address\": \"House 10, Road 4, Banani\",\n  \"place_type\": \"inside_city\",\n  \"currency\": \"{{currency}}\",\n  \"payment_method_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/save-order",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "save-order"
+              ]
+            },
+            "description": "API 2 of 2 (Save Order Checkout Submission):\n- Follows payshop_ecm_modify checkout form.\n- place_type: 'inside_city' or 'outside_city' (passed from body).\n- currency: 'bdt_rate' (passed from body).\n- NOTICE: Client does NOT send delivery_charge! Backend automatically calculates delivery_charge based on place_type in user's currency.\n- Identifies the ordered items via cart_id.\n- Inserts Order into 'orders' table (INV-00...) with place_type, delivery_charge, subtotal, and total in selected currency.\n- Inserts each ordered item into 'order_details' table with place_type ('inside_city' or 'outside_city'), vendor delivery charge, and vendor price.\n- Decrements stock in 'products' and 'product_variants'.\n- Clears temporary cart records from DB."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Order Tracking (POST)",
+      "item": [
+        {
+          "name": "Track Order by Invoice No",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoice_no\": \"{{invoice_no}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/order-tracking",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "order-tracking"
+              ]
+            },
+            "description": "Tracks order status and courier (Steadfast) details by invoice number."
+          }
+        },
+        {
+          "name": "Track Order by Order ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/track-order",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "track-order"
+              ]
+            },
+            "description": "Alias route for order tracking using order_id."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Rating & Review (POST)",
+      "item": [
+        {
+          "name": "Add Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"product_id\": 18,\n  \"rating\": 5,\n  \"comment\": \"Excellent quality! Highly recommended.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/product/add-review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "product",
+                "add-review"
+              ]
+            },
+            "description": "Submits or updates a user rating and review for a specific product. User must be logged in."
+          }
+        },
+        {
+          "name": "Get Product Reviews",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 18,\n  \"per_page\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/product/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "product",
+                "reviews"
+              ]
+            },
+            "description": "Retrieves paginated reviews for a product with rating statistics (average rating, total reviews count, and star breakdown)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Untouched Mobile App APIs (Reference Only - DO NOT MODIFY)",
+      "item": [
+        {
+          "name": "Sliders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/sliders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sliders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Home Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/home-categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "home-categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Category Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/category-details/1?page=1&currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "category-details",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Subcategory Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/subcategory-details/1?page=1&currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subcategory-details",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Latest Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/latest-products?page=1&currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "latest-products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Best Seller Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/best-seller?page=1&currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "best-seller"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin Verify Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin-verify-products?page=1&currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin-verify-products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Product Details (with MOQ Tiers)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/product-details/110?currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "product-details",
+                "110"
+              ],
+              "query": [
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            },
+            "description": "Returns full product details, variants, images, related products, and pre-calculated 'moq_pricing' (Multi Quantity Price) tiers in the user selected currency matching payshop_ecm_modify."
+          }
+        },
+        {
+          "name": "Search Product (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": \"water\",\n  \"category_id\": \"\",\n  \"per_page\": 10,\n  \"currency\": \"{{currency}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/search-product",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "search-product"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Shop",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/shop?userid=1&page=1&currency={{currency}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "shop"
+              ],
+              "query": [
+                {
+                  "key": "userid",
+                  "value": "1"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "currency",
+                  "value": "{{currency}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
